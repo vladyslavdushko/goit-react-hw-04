@@ -1,0 +1,9 @@
+.ul_gallery{
+display: flex;
+flex-direction: row;
+flex-wrap: wrap;
+justify-content: space-evenly;   
+gap: 7px;
+margin-top: 10px;
+}
+

@@ -1,0 +1,12 @@
+
+.li_gallery_item_container{
+    width: 350px;
+    height: 300px;
+}
+
+.li_gallery_item{
+    object-fit: cover;
+    width: 350px;
+    height: 300px;
+}
+
