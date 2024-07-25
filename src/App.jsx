@@ -11,29 +11,31 @@ import toast, { Toaster } from 'react-hot-toast';
 function App() {
   const [images, setImages] = useState([]);
   const [query, setQuery] = useState('');
-  const [total, setTotal] = useState([]);
+  const [total, setTotal] = useState(0); 
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); 
   const [open, setOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [src, setSrc] = useState('')
-  const [alt, setAlt] = useState('')
+  const [src, setSrc] = useState('');
+  const [alt, setAlt] = useState('');
 
   useEffect(() => {
     if (!query) return;
 
     const fetchImages = async () => {
       setLoading(true);
+      setError(null); 
 
       try {
         const result = await getPhotos(query, page);
         setImages(prevImages => [...prevImages, ...result.results]);
-        setIsVisible(page < Math.ceil(result.total / result.total_pages));
-        setTotal(result.total);
+        setIsVisible(page < Math.ceil(result.total / result.results.length));
+        setTotal(result.total); 
       } catch (error) {
-        return alert("Error", error)
+        setError(error); s
       } finally {
-         setLoading(false);
+        setLoading(false);
       }
     };
 
@@ -48,6 +50,7 @@ function App() {
     setQuery(value);
     setImages([]);
     setPage(1);
+    setTotal(0); 
   };
 
   const loadMore = () => {
@@ -55,43 +58,37 @@ function App() {
   };
 
   const handleOpen = (src, alt) => {
-    setOpen(true)
-    setSrc(src)
-    setAlt(alt)
+    setOpen(true);
+    setSrc(src);
+    setAlt(alt);
     document.body.style.overflow = 'hidden';
   };
 
-
   const handleClose = () => {
-    setOpen(false)
-    setSrc('')
-    setAlt('')
+    setOpen(false);
+    setSrc('');
+    setAlt('');
     document.body.style.overflow = 'unset';
   };
-console.log(images);
+
   return (
     <>
       <SearchBar onSubmit={onHandleSubmit} />
       {loading && <Loader />}
-      {!images.length && !loading && (
-        <p style={{
-          textAlign: 'center'
-        }}>Let`s begin search 🔎</p>
+      {!images.length && !loading && !error && (
+        <p style={{ textAlign: 'center' }}>Let's begin search 🔎</p>
       )}
       {images.length > 0 && (
         <ImageGallery images={images} handleOpen={handleOpen} />
       )}
-      {total === 0 && <ErrorMessage />}
+      {error && <ErrorMessage />} {/* Відображення помилки на основі стану помилки */}
       {isVisible && (
         <LoadMoreBtn onClick={loadMore} disabled={loading}>
           {loading ? 'Loading...' : 'Load more'}
         </LoadMoreBtn>
       )}
-      { <ImageModal isOpen={open}  handleOpen={handleOpen} closeModal={handleClose} src={src} alt={alt}/>}
-      <Toaster 
-      position="top-right"
-      reverseOrder={false}
-      />
+      <ImageModal isOpen={open} handleOpen={handleOpen} closeModal={handleClose} src={src} alt={alt} />
+      <Toaster position="top-right" reverseOrder={false} />
     </>
   );
 }
